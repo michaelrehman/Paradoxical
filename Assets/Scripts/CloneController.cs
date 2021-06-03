@@ -21,7 +21,7 @@ public class CloneController : MonoBehaviour {
 	private float startingTime;
 
 	/// Associates each input with code that responds to it.
-	public Dictionary<string, EventHandler<InputInTime>> inputHandlers;
+	private Dictionary<string, EventHandler<InputInTime>> inputHandlers;
 
 	protected virtual void Start() {
 		isPlayer = true;
@@ -31,12 +31,12 @@ public class CloneController : MonoBehaviour {
 		startingTime = Time.time;
 
 		inputHandlers = new Dictionary<string, EventHandler<InputInTime>>();
-		inputHandlers.Add("Fire1", (sender, eventArgs) => {
+		RegisterHandler("Fire1", (sender, eventArgs) => {
 			GameObject copy = Instantiate(dummy, eventArgs.mousePosition, Quaternion.identity);
 			Destroy(copy, 1);
 		});
-		inputHandlers.Add("HorzVertAxis", (sender, eventArgs) => {
-			transform.Translate(new Vector2(eventArgs.horizontalAxis, eventArgs.verticalAxis));
+		RegisterHandler("HorzVertAxis", (sender, eventArgs) => {
+			transform.Translate(new Vector2(eventArgs.horizontalAxis, eventArgs.verticalAxis) * 0.5f);
 		});
 	} // Start
 
@@ -44,8 +44,7 @@ public class CloneController : MonoBehaviour {
 		if (isPlayer) {
 			// Record inputs if this is the player
 			if (Input.GetButtonDown("Fire1")) {
-				inputs.Add(new InputInTime("Fire1"));
-				inputHandlers["Fire1"](this, inputs[inputs.Count - 1]);
+				HandleNewInput(new InputInTime("Fire1"));
 			} // if
 
 			// Switch from player control to clone control
@@ -62,11 +61,18 @@ public class CloneController : MonoBehaviour {
 			float horizontalAxis = Input.GetAxis("Horizontal");
 			float verticalAxis = Input.GetAxis("Vertical");
 			if (horizontalAxis != 0 || verticalAxis != 0) {
-				inputs.Add(new InputInTime("HorzVertAxis", horizontalAxis, verticalAxis));
-				inputHandlers["HorzVertAxis"](this, inputs[inputs.Count - 1]);
+				HandleNewInput(new InputInTime("HorzVertAxis", horizontalAxis, verticalAxis));
 			} // if
 		} // if
 	} // FixedUpdate
+
+	public virtual void RegisterHandler(string button, EventHandler<InputInTime> handler) {
+		try {
+			inputHandlers[button] += handler;
+		} catch (KeyNotFoundException) {
+			inputHandlers.Add(button, handler);
+		} // try
+	} // RegisterHandler
 
 	protected virtual void ResetToInitialState() {
 		Debug.Log(inputs.Count);
@@ -74,6 +80,21 @@ public class CloneController : MonoBehaviour {
 		transform.position = startingPosition;
 		transform.rotation = startingRotation;
 	} // ResetToInitialState
+
+	protected virtual void HandleNewInput(InputInTime newInput) {
+		inputs.Add(newInput);
+		ExecuteInput(newInput);
+	} // AddNewInput
+
+	protected virtual void ExecuteInput(InputInTime input) {
+		try {
+			EventHandler<InputInTime> handler = inputHandlers[input.button];
+			handler(this, input);
+		} catch (KeyNotFoundException knfe) {
+			Debug.LogError($"Did not find a handler for {input.button}.", this);
+			Debug.LogException(knfe, this);
+		} // try
+	} // ExecuteInput
 
 	protected virtual IEnumerator HandleInputs() {
 		for (int i = 0; i < inputs.Count; ++i) {
@@ -87,7 +108,7 @@ public class CloneController : MonoBehaviour {
 			} // if
 
 			yield return new WaitForSeconds(inputOffset);
-			inputHandlers[input.button](this, input);
+			ExecuteInput(input);
 		} // for
 	} // RespondToInput
 } // CloneController
