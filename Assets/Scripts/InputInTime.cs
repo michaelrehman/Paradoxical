@@ -8,12 +8,14 @@ public class InputInTime : EventArgs {
 	public string button { get; }
 	public Vector2 mousePosition { get; }
 	public float horizontalAxis { get; }
+	public float verticalAxis { get; }
 
-	public InputInTime(string button, float horizontalAxis = 0f) {
+	public InputInTime(string button, float horizontalAxis = 0f, float verticalAxis = 0f) {
 		this.timestamp = Time.time;
 		this.button = button;
 		this.mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 		this.horizontalAxis = horizontalAxis;
+		this.verticalAxis = verticalAxis;
 	} // InputInTime
 
 	// TODO: create subclasses to track more specific information (or choose to assign defaults)

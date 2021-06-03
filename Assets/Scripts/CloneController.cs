@@ -14,9 +14,9 @@ public class CloneController : MonoBehaviour {
 	private List<InputInTime> inputs;
 
 	/// The starting position of this GameObject.
-    private Vector2 startingPosition;
+	private Vector2 startingPosition;
 	/// The starting rotation of this GameObject.
-    private Quaternion startingRotation;
+	private Quaternion startingRotation;
 	/// The time since the start of the game when `Start` gets called.
 	private float startingTime;
 
@@ -32,13 +32,11 @@ public class CloneController : MonoBehaviour {
 
 		inputHandlers = new Dictionary<string, EventHandler<InputInTime>>();
 		inputHandlers.Add("Fire1", (sender, eventArgs) => {
-			// Debug.Log(eventArgs.mousePosition);
 			GameObject copy = Instantiate(dummy, eventArgs.mousePosition, Quaternion.identity);
 			Destroy(copy, 1);
 		});
-		inputHandlers.Add("HorizontalAxis", (sender, eventArgs) => {
-			// Debug.Log(eventArgs.horizontalAxis);
-			transform.Rotate(0, 0, eventArgs.horizontalAxis * 20);
+		inputHandlers.Add("HorzVertAxis", (sender, eventArgs) => {
+			transform.Translate(new Vector2(eventArgs.horizontalAxis, eventArgs.verticalAxis));
 		});
 	} // Start
 
@@ -62,9 +60,10 @@ public class CloneController : MonoBehaviour {
 		// Movement code makes too many events in Update
 		if (isPlayer) {
 			float horizontalAxis = Input.GetAxis("Horizontal");
-			if (horizontalAxis != 0) {
-				inputs.Add(new InputInTime("HorizontalAxis", horizontalAxis));
-				inputHandlers["HorizontalAxis"](this, inputs[inputs.Count - 1]);
+			float verticalAxis = Input.GetAxis("Vertical");
+			if (horizontalAxis != 0 || verticalAxis != 0) {
+				inputs.Add(new InputInTime("HorzVertAxis", horizontalAxis, verticalAxis));
+				inputHandlers["HorzVertAxis"](this, inputs[inputs.Count - 1]);
 			} // if
 		} // if
 	} // FixedUpdate
