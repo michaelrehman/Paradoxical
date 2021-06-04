@@ -64,5 +64,6 @@ public class Replayer {
 			yield return new WaitForSeconds(inputOffset);
 			ExecuteInput(input);
 		} // for
+		CloneManager.instance.CloneCompleted();
 	} // Replay
 } // Replayer
