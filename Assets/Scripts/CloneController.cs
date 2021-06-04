@@ -3,19 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>Handles player inputs.</summary>
+/// <seealso cref="Replayer"/>
 public class CloneController : MonoBehaviour {
 
-	/// A test dummy to test core functionality.
+	/// <summary>A test dummy to test core functionality.</summary>
 	public GameObject dummy;
 
-	/// Denotes whether or not the player is in control.
+	/// <summary>Denotes whether or not the player is in control.</summary>
 	[SerializeField] private bool isPlayer;
 
-	/// The starting position of this GameObject.
+	/// <summary>The starting position of this GameObject.</summary>
 	private Vector2 startingPosition;
-	/// The starting rotation of this GameObject.
+	/// <summary>The starting rotation of this GameObject.</summary>
 	private Quaternion startingRotation;
 
+	/// <summary>The <c>Replayer</c> that records and executes inputs for this clone.</summary>
 	public Replayer replayer;
 
 	protected virtual void Awake() {
@@ -60,6 +63,11 @@ public class CloneController : MonoBehaviour {
 		} // if
 	} // FixedUpdate
 
+	/// <summary>
+	/// Resets this clone to its initial state,
+	/// prevents any additional inputs from the player, and
+	/// spawns a new clone for the player to control.
+	/// </summary>
 	public virtual void ResetToInitialState() {
 		// Spawn one and only one additional clone for the player to control
 		if (isPlayer) {

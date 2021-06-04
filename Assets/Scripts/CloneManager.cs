@@ -3,18 +3,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// Singleton class.
+/// <summary>Singleton class to manage all clones created by the player.</summary>
 public class CloneManager : MonoBehaviour {
 
+	/// <summary>The singleton of this class</summary>
 	public static CloneManager instance;
 
+	/// <summary>All clones managed by this class.</summary>
+	/// <see cref="AddClone"/>
 	private List<CloneController> clones;
+	/// <summary>
+	/// The number of clones that have completed their replay.
+	/// This value should be compared against <c>instance.clones.Count</c>
+	/// to check if all clones have finished their replays.
+	/// </summary>
 	private int completedClones;
 
+	/// <summary>The offset for all clones to use at the start of their replays.</summary>
+	/// <value>
+	/// <c>0.0f</c> for the first clone and the first clone's
+	/// <c>replayer.timeToFirstInput</c> for all other clones.
+	/// </value>
 	public float offset {
 		get {
 			try {
-				return clones[0].replayer.timeToFirstInput;
+				return clones[0].replayer.becameActiveAt;
 			} catch (ArgumentOutOfRangeException) {
 				return 0.0f;
 			} // try
@@ -30,8 +43,9 @@ public class CloneManager : MonoBehaviour {
 	} // Awake
 
 	protected virtual void Update() {
+		// Only allow replays when all clones are not currently replaying
 		if (Input.GetButtonDown("Fire2") && instance.completedClones == instance.clones.Count) {
-			instance.completedClones = 0;
+			instance.completedClones = 0; // replaying clones are not complete
 			instance.clones.ForEach((clone) => {
 				clone.ResetToInitialState();
 				StartCoroutine(clone.replayer.Replay());
@@ -39,6 +53,8 @@ public class CloneManager : MonoBehaviour {
 		} // if
 	} // Update
 
+	/// <summary>Adds <paramref name="clone"/> to the list of clones to manage.</summary>
+	/// <param name="clone">The clone to be added.</param>
 	public virtual void AddClone(CloneController clone) {
 		// The most recent clone is going to be the player's,
 		// so it is "complete" always; just need the player's
@@ -47,6 +63,7 @@ public class CloneManager : MonoBehaviour {
 		++instance.completedClones;
 	} // AddClone
 
+	/// <summary>Updates the singleton's that a clone has finished its replay.</summary>
 	public virtual void CloneCompleted() {
 		++instance.completedClones;
 	} // CloneCompleted
