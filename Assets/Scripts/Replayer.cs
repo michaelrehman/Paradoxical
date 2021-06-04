@@ -5,14 +5,15 @@ using UnityEngine;
 
 public class Replayer {
 
-	public float startingTime { get; }
+	/// Used to control when the inputs should be played back;
+	public float timeToFirstInput { get; }
 	public GameObject controls { get; }
 
 	private List<InputInTime> inputs;
 	private Dictionary<string, EventHandler<InputInTime>> inputHandlers;
 
-	public Replayer(float startingTime, GameObject controls) {
-		this.startingTime = startingTime;
+	public Replayer(float timeToFirstInput, GameObject controls) {
+		this.timeToFirstInput = timeToFirstInput;
 		this.controls = controls;
 		this.inputs = new List<InputInTime>();
 		this.inputHandlers = new Dictionary<string, EventHandler<InputInTime>>();
@@ -48,14 +49,17 @@ public class Replayer {
 	} // ExecuteInput
 
 	public virtual IEnumerator Replay() {
-		Debug.Log(inputs.Count);
 		for (int i = 0; i < inputs.Count; ++i) {
 			InputInTime input = inputs[i];
 
 			// Convert the timestamp to a duration
 			// Need only to wait the time /between/ inputs
-			float inputOffset = input.timestamp - startingTime;
-			if (i > 0) { inputOffset -= inputs[i - 1].timestamp; } // if
+			float inputOffset = input.timestamp;
+			if (i > 0) {
+				inputOffset -= inputs[i - 1].timestamp;
+			} else {
+				inputOffset -= timeToFirstInput;
+			} // if
 
 			yield return new WaitForSeconds(inputOffset);
 			ExecuteInput(input);
