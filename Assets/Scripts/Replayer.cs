@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>Capable of recording, executing, and </summary>
+/// <summary>Capable of recording and executing player input.</summary>
 /// <seealso cref="InputInTime"/>
 public class Replayer {
 

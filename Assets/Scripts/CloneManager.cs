@@ -22,12 +22,12 @@ public class CloneManager : MonoBehaviour {
 	/// <summary>The offset for all clones to use at the start of their replays.</summary>
 	/// <value>
 	/// <c>0.0f</c> for the first clone and the first clone's
-	/// <c>replayer.timeToFirstInput</c> for all other clones.
+	/// <c>replayer.consideredActiveAt</c> for all other clones.
 	/// </value>
 	public float offset {
 		get {
 			try {
-				return clones[0].replayer.becameActiveAt;
+				return clones[0].replayer.consideredActiveAt;
 			} catch (ArgumentOutOfRangeException) {
 				return 0.0f;
 			} // try

@@ -33,33 +33,38 @@ public class CloneController : MonoBehaviour {
 		this.replayer = new Replayer(Time.time - CloneManager.instance.offset, this.gameObject);
 
 		replayer.RegisterHandler("Fire1", (sender, eventArgs) => {
-			GameObject copy = Instantiate(dummy, eventArgs.mousePosition, Quaternion.identity);
+			MouseInputInTime input = eventArgs as MouseInputInTime;
+			GameObject copy = Instantiate(dummy, input.mousePosition, Quaternion.identity);
 			Destroy(copy, 1);
 		});
 		replayer.RegisterHandler("HorzVertAxis", (sender, eventArgs) => {
-			transform.Translate(new Vector2(eventArgs.horizontalAxis, eventArgs.verticalAxis) * 0.5f);
+			MovementInputInTime input = eventArgs as MovementInputInTime;
+			transform.Translate(new Vector2(input.horizontalAxis, input.verticalAxis) * 0.5f);
 		});
 
 		CloneManager.instance.AddClone(this);
 	} // Start
 
 	protected virtual void Update() {
-		if (isPlayer) {
-			// Record inputs if this is the player
-			if (Input.GetButtonDown("Fire1")) {
-				replayer.RecordInput(new InputInTime("Fire1"));
-			} // if
+		if (!isPlayer) {
+			return;
+		} // if
+
+		if (Input.GetButtonDown("Fire1")) {
+			replayer.RecordInput(new MouseInputInTime("Fire1"));
 		} // if
 	} // Update
 
 	protected virtual void FixedUpdate() {
 		// Movement code makes too many events in Update
-		if (isPlayer) {
-			float horizontalAxis = Input.GetAxis("Horizontal");
-			float verticalAxis = Input.GetAxis("Vertical");
-			if (horizontalAxis != 0 || verticalAxis != 0) {
-				replayer.RecordInput(new InputInTime("HorzVertAxis", horizontalAxis, verticalAxis));
-			} // if
+		if (!isPlayer) {
+			return;
+		} // if
+
+		float horizontalAxis = Input.GetAxis("Horizontal");
+		float verticalAxis = Input.GetAxis("Vertical");
+		if (horizontalAxis != 0 || verticalAxis != 0) {
+			replayer.RecordInput(new MovementInputInTime("HorzVertAxis", horizontalAxis, verticalAxis));
 		} // if
 	} // FixedUpdate
 

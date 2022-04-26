@@ -10,9 +10,33 @@ public class InputInTime : EventArgs {
 	/// <summary>The input type.</summary>
 	/// <summary>Typically, the name of a button input as specified in Unity's Input Manager.</summary>
 	public string button { get; }
+
+	/// <summary>Creates a snapshot of the necessary info to execute this input.</summary>
+	/// <param name="button">The input type.</param>
+	/// <param name="horizontalAxis">How much left or right the player was moving.</param>
+	/// <param name="verticalAxis">How much up or down the player was moving.</param>
+	public InputInTime(string button) {
+		this.timestamp = Time.time;
+		this.button = button;
+	} // InputInTime
+
+	// TODO: create subclasses to track more specific information
+} // InputInTime
+
+/// <summary>Saves relevant mouse data at</summary>
+public class MouseInputInTime : InputInTime {
+
 	/// <summary>The mouse position when this input occured.</summary>
 	/// <value>The world point at where the mouse was.</value>
 	public Vector2 mousePosition { get; }
+
+	public MouseInputInTime(string button) : base(button) {
+		this.mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+	} // MouseInputInTime
+} // MouseInputInTime
+
+public class MovementInputInTime : InputInTime {
+
 	/// <summary>How much left or right the player was moving.</summary>
 	/// <value>The value of <c>Input.GetAxis("Horizontal")</c> at the time.</value>
 	public float horizontalAxis { get; }
@@ -20,19 +44,8 @@ public class InputInTime : EventArgs {
 	/// <value>The value of <c>Input.GetAxis("Vertical")</c> at the time.</value>
 	public float verticalAxis { get; }
 
-	/// <summary>Creates a snapshot of the necessary info to execute this input.</summary>
-	/// <param name="button">The input type.</param>
-	/// <param name="horizontalAxis">How much left or right the player was moving.</param>
-	/// <param name="verticalAxis">How much up or down the player was moving.</param>
-	public InputInTime(string button, float horizontalAxis = 0f, float verticalAxis = 0f) {
-		this.timestamp = Time.time;
-		this.button = button;
-		this.mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+	public MovementInputInTime(string button, float horizontalAxis, float verticalAxis) : base(button) {
 		this.horizontalAxis = horizontalAxis;
 		this.verticalAxis = verticalAxis;
-	} // InputInTime
-
-	// TODO: create subclasses to track more specific information (or choose to assign defaults)
-		// TODO: create a method to check if certain casts are valid
-		// TODO: create factory `fromButton` method to handle creation
-} // InputInTime
+	} // MovementInputInTime
+} // MovementInputInTime
